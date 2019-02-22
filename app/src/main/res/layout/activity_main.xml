@@ -27,6 +27,7 @@
         android:ems="10"
         android:hint="usuari"
         android:inputType="textPersonName"
+        android:text="comas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -40,6 +41,7 @@
         android:ems="10"
         android:hint="contraseña"
         android:inputType="textPassword"
+        android:text="gomez"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
