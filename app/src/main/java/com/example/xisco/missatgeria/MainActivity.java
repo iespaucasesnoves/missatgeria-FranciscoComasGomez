@@ -1,7 +1,10 @@
 package com.example.xisco.missatgeria;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity{
     private Button log_btn;
@@ -21,16 +23,20 @@ public class MainActivity extends AppCompatActivity{
     private static String url = "https://iesmantpc.000webhostapp.com/public/login/";
     private static Preferencies preferencies;
     private static SharedPreferences prefs;
-    private static SharedPreferences.Editor editor;
+    private ReceptorXarxa receptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receptor = new ReceptorXarxa();
+        this.registerReceiver(receptor, filter);
+
         Context context = getBaseContext();
-        SharedPreferences prefs = this.getSharedPreferences(
+        prefs = this.getSharedPreferences(
                 "PreferenciesQuepassaEh", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
         log_btn = findViewById(R.id.login_btn);
         nom = findViewById(R.id.editText);
         password = findViewById(R.id.editText2);
@@ -50,29 +56,50 @@ public class MainActivity extends AppCompatActivity{
     }
     public void montaPrefs(String data, String pwd){
         try {
-            HashMap<String, String> pref = jsonToMap(data);
-            editor.putInt("id", 20);
-            editor.putString("user", pref.get("nom"));
-            editor.putString("passwd", pwd);
-            editor.putString("token", pref.get("token"));
+            JSONObject object = new JSONObject(data);
+            prefs.edit().putInt("id", Integer.parseInt(object.getJSONObject("dades").getString("codiusuari"))).apply();
+            prefs.edit().putString("user", object.getJSONObject("dades").getString("nom")).apply();
+            prefs.edit().putString("passwd", pwd).apply();
+            prefs.edit().putString("token", object.getJSONObject("dades").getString("token")).apply();
             preferencies = new Preferencies(getBaseContext());
             Toast.makeText(this, preferencies.getAll(), Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
-    public HashMap<String, String> jsonToMap(String t) throws JSONException {
+    public void onStart() {
+        super.onStart();
+        //Obtenim un gestor de les connexions de xarxa
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        HashMap<String, String> map = new HashMap<String, String>();
-        JSONObject jObject = new JSONObject(t);
-        Iterator<?> keys = jObject.keys();
+        //Obtenim l’estat de la xarxa
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        while( keys.hasNext() ){
-            String key = (String)keys.next();
-            String value = jObject.getString(key);
-            map.put(key, value);
+        //Obtenim l’estat de la xarxa mòbil
+        networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        boolean connectat3G = networkInfo.isConnected();
 
+        //Obtenim l’estat de la xarxa Wifi
+        networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean connectatWifi = networkInfo.isConnected();
+
+        if (networkInfo != null && connectat3G) {
+            //Xarxa OK
+            Toast.makeText(this, "Xarxa ok, conectat3G", Toast.LENGTH_LONG).show();
+        } else if (networkInfo != null && connectatWifi){
+            //Xarxa OK
+            Toast.makeText(this, "Xarxa ok, conectat Wifi", Toast.LENGTH_LONG).show();
+        } else {
+            //Xarxa no disponible
+            Toast.makeText(this, "Xarxa no disponible", Toast.LENGTH_LONG).show();
         }
-        return map;
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        //Donam de baixa el receptor de broadcast quan es destrueix l’aplicació
+        if (receptor != null) {
+            this.unregisterReceiver(receptor);
+        }
     }
 }
