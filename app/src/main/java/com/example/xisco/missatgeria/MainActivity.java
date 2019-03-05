@@ -1,6 +1,7 @@
 package com.example.xisco.missatgeria;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity{
     private Button log_btn;
     private EditText nom, password;
     private static String url = "https://iesmantpc.000webhostapp.com/public/login/";
-    private static Preferencies preferencies;
+    public static Preferencies preferencies;
     private static SharedPreferences prefs;
     private ReceptorXarxa receptor;
 
@@ -49,12 +50,19 @@ public class MainActivity extends AppCompatActivity{
                 Login login = new Login(parameters, getBaseContext());
                 login.execute(url);
                 if(preferencies == null) {
-                    montaPrefs(login.res, password.getText().toString());
+                    if(montaPrefs(login.res, password.getText().toString())){
+                        Intent i = new Intent(MainActivity.this, Chat.class);
+                        startActivity(i);
+                    }
+                }else{
+                    Intent i = new Intent(MainActivity.this, Chat.class);
+                    startActivity(i);
                 }
             }
         });
+
     }
-    public void montaPrefs(String data, String pwd){
+    public boolean montaPrefs(String data, String pwd){
         try {
             JSONObject object = new JSONObject(data);
             prefs.edit().putInt("id", Integer.parseInt(object.getJSONObject("dades").getString("codiusuari"))).apply();
@@ -62,9 +70,10 @@ public class MainActivity extends AppCompatActivity{
             prefs.edit().putString("passwd", pwd).apply();
             prefs.edit().putString("token", object.getJSONObject("dades").getString("token")).apply();
             preferencies = new Preferencies(getBaseContext());
-            Toast.makeText(this, preferencies.getAll(), Toast.LENGTH_SHORT).show();
+            return true;
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
     }
     public void onStart() {
