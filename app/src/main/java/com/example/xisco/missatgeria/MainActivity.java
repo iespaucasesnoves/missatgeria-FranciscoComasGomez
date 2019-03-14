@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity{
     private Button log_btn;
@@ -48,7 +49,13 @@ public class MainActivity extends AppCompatActivity{
                 parameters.put("nom", nom.getText().toString());
                 parameters.put("password", password.getText().toString());
                 Login login = new Login(parameters, getBaseContext());
-                login.execute(url);
+                try {
+                    login.execute(url).get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(preferencies == null) {
                     if(montaPrefs(login.res, password.getText().toString())){
                         Intent i = new Intent(MainActivity.this, Chat.class);

@@ -71,6 +71,7 @@ public class Login extends AsyncTask<String, Void, String> {
                     resultat+=line;
                 }
                 Log.i("ResConnectUtils", resultat);
+
             }
             else {
                 resultat="";

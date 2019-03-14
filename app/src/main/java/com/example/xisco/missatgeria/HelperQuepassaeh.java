@@ -18,7 +18,7 @@ public class HelperQuepassaeh extends SQLiteOpenHelper {
     public static final String COLUMN_EMAIL = "email";
     public static final String COLUMN_FOTO = "foto";
     private static final String DATABASE_NAME = "quepassaeh.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 8;
     private static final String DATABASE_CREATE_MISSATGE = "create table "
             + TABLE_MISSATGE + "(" + COLUMN_CODI
             + " integer primary key, "

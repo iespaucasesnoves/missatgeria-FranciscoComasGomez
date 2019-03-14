@@ -2,6 +2,7 @@ package com.example.xisco.missatgeria;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Adapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -28,10 +30,11 @@ public class DescarregaMissatges extends AsyncTask<String, Void, String> {
     private Context context;
     private InputStream in;
     private DataSourcePrefs db;
-
-    protected DescarregaMissatges(Context context, DataSourcePrefs db){
+    private MsgAdapter adapter;
+    protected DescarregaMissatges(Context context, DataSourcePrefs db, MsgAdapter adapter){
         this.context = context;
         this.db = db;
+        this.adapter = adapter;
     }
 
     protected String doInBackground(String... urls) {
@@ -39,7 +42,7 @@ public class DescarregaMissatges extends AsyncTask<String, Void, String> {
         HttpsURLConnection urlConnection = null;
         StringBuilder sb;
         try {
-            url =new URL(urls[0] + MainActivity.preferencies.getCodiusuari());
+            url =new URL(urls[0]);
             urlConnection =(HttpsURLConnection) url.openConnection();
             in = new BufferedInputStream(urlConnection.getInputStream());
             sb = new StringBuilder();
@@ -88,8 +91,10 @@ public class DescarregaMissatges extends AsyncTask<String, Void, String> {
                 db.close();
             }
             db.open();
-            db.getAllMissatges();
+            Chat.msgs = db.getAllMissatges();
             db.close();
+            adapter.addAll(Chat.msgs);
+            adapter.notifyDataSetChanged();
         }catch (JSONException e){
             e.printStackTrace();
         }
