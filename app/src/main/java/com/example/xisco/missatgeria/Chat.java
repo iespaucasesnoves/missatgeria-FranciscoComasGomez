@@ -14,6 +14,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +48,15 @@ public class Chat extends AppCompatActivity {
         btn_serch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                HashMap<String, String> missatge = new HashMap<>();
+                missatge.put("msg", txt_send.getText().toString());
+                missatge.put("codiusuari", String.valueOf(MainActivity.preferencies.getCodiusuari()));
+                EnviarMissatge send = new EnviarMissatge(missatge, getBaseContext());
+                send.execute(url);
+                Toast.makeText(Chat.this, "Missatge Enviat", Toast.LENGTH_SHORT).show();
+                asyncNetworkStream = new DescarregaMissatges(getBaseContext(), db, adapter);
+                asyncNetworkStream.execute(url);
+
             }
         });
     }

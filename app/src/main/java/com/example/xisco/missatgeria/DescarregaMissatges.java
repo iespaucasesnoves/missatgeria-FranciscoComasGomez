@@ -87,7 +87,9 @@ public class DescarregaMissatges extends AsyncTask<String, Void, String> {
                 if(!db.usuariExist(jsonObjectTemp.getString("codiusuari"))){
                     db.guardarUsuari(jsonObjectTemp.getString("codiusuari"), jsonObjectTemp.getString("nom"), "");
                 }
-                db.guardaMissatges(jsonObjectTemp.getString("codi"), jsonObjectTemp.getString("datahora"), jsonObjectTemp.getString("msg"), jsonObjectTemp.getString("codiusuari"));
+                if(!db.msgExist(jsonObjectTemp.getString("codi"))){
+                    db.guardaMissatges(jsonObjectTemp.getString("codi"), jsonObjectTemp.getString("datahora"), jsonObjectTemp.getString("msg"), jsonObjectTemp.getString("codiusuari"));
+                }
                 db.close();
             }
             db.open();
